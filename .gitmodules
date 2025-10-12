@@ -1,0 +1,3 @@
+[submodule "server/Odin-HTTP-Server"]
+	path = server/Odin-HTTP-Server
+	url = https://github.com/SchoolyB/Odin-HTTP-Server.git
