@@ -185,7 +185,7 @@ require_authentication :: proc(headers: map[string]string) -> (userID: string, a
 
         dirCreated:= users.make_user_log_dir(newUser)
         filesCreated:= users.create_user_logs(newUser)
-        rateLimitSetup:= users.setup_user_rate_limiting(newUser)
+        //TODO: ^^^^possibly free these returned values
 }
 
     return extractedUser.id, success
@@ -204,12 +204,6 @@ require_authentication_with_rate_limit :: proc(headers: map[string]string, rateL
 
     dirCreated := users.make_user_log_dir(newUser)
     filesCreated := users.create_user_logs(newUser)
-    // rateLimitSetup := users.setup_user_rate_limiting(newUser)
-
-    // allowed, rateLimitErr := users.check_rate_limit(newUser, rateLimitPerMinute)
-    // if rateLimitErr != nil || !allowed {
-        // return extractedUser.id, true, true
-    // }
 
     return extractedUser.id, true, false
 }

@@ -56,9 +56,6 @@ run_ostrich_server :: proc(server: ^lib.Server) -> ^lib.Error {
 
             //OPTIONS '/*' dynamic route. CORS preflight related shit. Need these otherwise shit breaks
 
-            //Manual Query Editor
-            add_route_to_router(router, .OPTIONS, "/api/v1/projects/*/manual_query", handle_options_request)
-
             //User account management
             add_route_to_router(router, .OPTIONS,  "/api/v1/user/*", handle_options_request)
             add_route_to_router(router, .OPTIONS,  "/api/v1/user/*/logs/*", handle_options_request)
@@ -82,8 +79,6 @@ run_ostrich_server :: proc(server: ^lib.Server) -> ^lib.Error {
             // '/version' static route
             add_route_to_router(router, .GET, "/version", handle_get_request)
 
-            // manual query editor route
-            add_route_to_router(router, .POST, "/api/v1/projects/*/manual_query", handle_post_request)
 
             //User account management routes
             add_route_to_router(router, .DELETE, fmt.tprintf("%s/user/*", apiBase), handle_delete_request) //deleting thier account
