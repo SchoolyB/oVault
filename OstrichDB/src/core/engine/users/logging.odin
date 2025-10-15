@@ -58,7 +58,6 @@ create_user_error_log_file :: proc(user: ^lib.User) -> ^lib.Error{
 
     userErrorLogFile:= fmt.tprintf("%s/logs/errors.log", user.id)
     file, creationError:= os.open(userErrorLogFile, os.O_CREATE, FILE_MODE_RW_ALL)
-    if creationError == .Exist do return no_error()
     if creationError != nil{
         return make_new_err(.STANDARD_CANNOT_CREATE_FILE, get_caller_location())
     }

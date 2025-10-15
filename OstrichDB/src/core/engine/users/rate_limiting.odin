@@ -76,8 +76,9 @@ setup_user_rate_limiting ::proc(user: ^lib.User) -> ^lib.Error{
     dirResult:= create_user_rate_limit_dir(user)
     if dirResult != nil do return dirResult;
 
-    fileResult:= create_user_rate_limit_file(user)
-    if fileResult != nil do return fileResult;
+    //Commented because causing bug
+    // fileResult:= create_user_rate_limit_file(user)
+    // if fileResult != nil do return fileResult;
 
     return no_error()
 }
