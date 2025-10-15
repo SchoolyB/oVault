@@ -15,48 +15,58 @@
 			const token = env.PUBLIC_OSTRICHDB_TOKEN;
 			const baseUrl = 'http://localhost:8042/api/v1';
 
-			// 1. Create project "secure"
+			// Create project "secure"
 			await fetch(`${baseUrl}/projects/secure`, {
 				method: 'POST',
 				headers: {
-					'Authorization': `Bearer ${token}`
+					'Authorization': `Bearer ${token}`,
+					'Content-Type': `application/json`,
+					'Accept': `application/json`
 				}
 			});
 
-			// 2. Create collection "credentials"
+			// Create a  collection called "credentials"
 			await fetch(`${baseUrl}/projects/secure/collections/credentials`, {
 				method: 'POST',
 				headers: {
-					'Authorization': `Bearer ${token}`
+					'Authorization': `Bearer ${token}`,
+					'Content-Type': `application/json`,
+					'Accept': `application/json`
 				}
 			});
 
-			// 3. Create cluster "creds"
+			// Create cluster for users "creds" to store username and password
 			await fetch(`${baseUrl}/projects/secure/collections/credentials/clusters/creds`, {
 				method: 'POST',
 				headers: {
-					'Authorization': `Bearer ${token}`
+					'Authorization': `Bearer ${token}`,
+					'Content-Type': `application/json`,
+					'Accept': `application/json`
 				}
 			});
 
-			// 4. Create username record
+			//Store users username
 			await fetch(`${baseUrl}/projects/secure/collections/credentials/clusters/creds/records/username?type=string&value=${encodeURIComponent(username)}`, {
 				method: 'POST',
 				headers: {
-					'Authorization': `Bearer ${token}`
+					'Authorization': `Bearer ${token}`,
+					'Content-Type': `application/json`,
+					'Accept': `application/json`
 				}
 			});
 
-			// 5. Create password record
+			//Store users password
 			await fetch(`${baseUrl}/projects/secure/collections/credentials/clusters/creds/records/password?type=string&value=${encodeURIComponent(password)}`, {
 				method: 'POST',
 				headers: {
-					'Authorization': `Bearer ${token}`
+					'Authorization': `Bearer ${token}`,
+					'Content-Type': `application/json`,
+					'Accept': `application/json`
 				}
 			});
 
-			// Registration successful - could redirect to login page
-			window.location.href = '/';
+			// Registration successful - redirect to login page
+			window.location.href = '/login';
 
 		} catch (err) {
 			error = 'Registration failed. Please try again.';
@@ -144,7 +154,7 @@
 						<div class="text-center mt-4">
 							<p class="text-slate-400 text-sm">
 								Already have an account?
-								<a href="/" class="text-purple-400 hover:text-purple-300 font-medium transition">
+								<a href="/login" class="text-purple-400 hover:text-purple-300 font-medium transition">
 									Sign in
 								</a>
 							</p>

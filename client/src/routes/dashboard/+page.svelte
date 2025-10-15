@@ -33,14 +33,19 @@
 		)
 	);
 
-	// Check if user is logged in on mount and redirect appropriately
+	// Check if user is logged in on mount
 	onMount(() => {
 		// Check if user has an active session
 		const loggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
-		if (!loggedIn) {
+		const username = sessionStorage.getItem('username');
+
+		if (!loggedIn || !username) {
+			console.log('No active session found, redirecting to login...');
 			goto('/login');
 		} else {
-			goto('/dashboard');
+			console.log('Active session found for user:', username);
+			isLoggedIn = true;
+			loadPasswords();
 		}
 	});
 
@@ -82,6 +87,7 @@
 
 	// Logout handler
 	function handleLogout() {
+		console.log('Logging out...');
 		// Clear session storage
 		sessionStorage.removeItem('isLoggedIn');
 		sessionStorage.removeItem('username');
@@ -174,7 +180,7 @@
 </script>
 
 <div class="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-	<!-- Vault Page -->
+	<!-- Dashboard / Vault Page -->
 	<div class="min-h-screen">
 		<!-- Header -->
 		<header class="bg-slate-800/50 backdrop-blur-xl border-b border-slate-700 sticky top-0 z-10">
@@ -186,7 +192,7 @@
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
 							</svg>
 						</div>
-						<h1 class="text-2xl font-bold text-white">oVault</h1>
+						<h1 class="text-2xl font-bold text-white">oVault Dashboard</h1>
 					</div>
 					<button
 						onclick={handleLogout}
