@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import PasswordCard from '$lib/components/PasswordCard.svelte';
 	import PasswordModal from '$lib/components/PasswordModal.svelte';
+	import {env} from '$env/dynamic/public';
 
 	interface PasswordEntry {
 		id: string;
@@ -37,9 +38,15 @@
 		)
 	);
 
+	export async function show_me_key() {
+            console.log(env.PUBLIC_OSTRICHDB_TOKEN);
+
+        }
+
 	// Login handler
 	async function handleLogin() {
 		loginError = '';
+		show_me_key()
 
 		if (!loginUsername || !loginPassword) {
 			loginError = 'Please enter both username and password';
@@ -211,6 +218,7 @@
 
 					<!-- Login Form -->
 					<form onsubmit={(e) => { e.preventDefault(); handleLogin(); }}>
+
 						<div class="space-y-4">
 							<div>
 								<label for="username" class="block text-sm font-medium text-slate-300 mb-2">
