@@ -77,14 +77,9 @@ load_dotenv :: proc(filePath: string = ".env") -> bool {
 @(require_results)
 load_config_with_dotenv :: proc(environment: string = "") -> ^lib.AppConfig {
     using fmt
-
-    // Load .env file first (only in development)
-    load_dotenv()
-
-    // Then proceed with normal config loading
-    return load_config(environment)
+    config:= load_config(environment)
+    return config
 }
-
 
 validate_security_config :: proc() -> bool {
     serverSecret := os.get_env("OSTRICH_MASTER_SECRET")

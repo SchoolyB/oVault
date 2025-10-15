@@ -3,6 +3,7 @@ package config
 import "core:fmt"
 import "core:os"
 import "core:strings"
+import "core:slice"
 import "core:encoding/json"
 import lib "../../library"
 import "core:strconv"
@@ -49,48 +50,31 @@ get_environment :: proc() -> string {
     }
 }
 
-// Get default configuration values
+// Sets default configuration values
 @(require_results)
-get_default_config :: proc() -> lib.AppConfig {
+set_default_config :: proc() -> ^lib.AppConfig {
     using lib
 
-    return AppConfig{
-        server = ServerConfig{
-            port = 8042,
-            host = "localhost",
-            bindAddress = "0.0.0.0",
-            maxConnections = 100,
-            requestTimeoutSeconds = 30,
-            backlogSize = 5,
-        },
-        database = DatabaseConfig{
-            storagePath = "./data",
-            maxFileSizeMb = 100,
-            backupEnabled = true,
-            backupIntervalHours = 24,
-        },
-        logging = LoggingConfig{
-            level = "INFO",
-            filePath = "./logs/ostrich.log",
-            consoleOutput = true,
-            maxFileSizeMb = 50,
-            rotateFiles = true,
-            maxRotatedFiles = 5,
-        },
-        cors = CorsConfig{
-            allowedOrigins = []string{"http://localhost:3000", "http://localhost:8080", "http://localhost:5173", "https://ostrichdb.com", "https://www.ostrichdb.com"}, //Possible client origins not the servers port :)
-            allowedMethods =[]HttpMethod{.GET, .POST, .PUT, .DELETE, .HEAD, .OPTIONS},
-            allowedHeaders = []string{"Content-Type", "Authorization", "X-Requested-With"},
-            exposeHeaders = []string{},
-            maxAgeSeconds = 86400,
-            allowCredentials = false,
-        },
-        security = SecurityConfig{
-            rateLimitRequestsPerMinute = 60,
-            maxRequestBodySizeMb = 10,
-            enableAuth = false,
-        },
-    }
+    config:= new(AppConfig)
+    config.server.port = 8042
+    config.server.host = strings.clone("localhost")
+    config.server.bindAddress = strings.clone("0.0.0.0")
+    config.server.maxConnections = 100
+    config.server.requestTimeoutSeconds = 30
+    config.server.backlogSize = 5
+
+    config.cors.allowedOrigins = slice.clone([]string{ "http://localhost:5173"})
+    config.cors.allowedMethods =slice.clone([]HttpMethod{.GET, .POST, .PUT, .DELETE, .HEAD, .OPTIONS})
+    config.cors.allowedHeaders = slice.clone([]string{"Content-Type", "Authorization", "X-Requested-With"})
+    config.cors.exposeHeaders = []string{}
+    config.cors.maxAgeSeconds = 86400
+    config.cors.allowCredentials = false
+
+    config.security.rateLimitRequestsPerMinute = 60
+    config.security.maxRequestBodySizeMb = 10
+    config.security.enableAuth = false
+
+    return config
 }
 
 //Load the a config.json file of the passed in name if no name is given default
@@ -100,38 +84,11 @@ load_config :: proc(environment: string = "") -> ^lib.AppConfig {
 
     env := environment if environment != "" else get_environment()
 
-    // Start with default config
-    config := get_default_config()
+    config := set_default_config()
 
-    // Try to load from config file
-    configFilePath := tprintf("./config/%s.json", env)
+    apply_env_overrides(config)
 
-    if configData, ok := os.read_entire_file(configFilePath); ok {
-        defer delete(configData)
-
-        if json_err := json.unmarshal(configData, &config); json_err != nil {
-            printf("WARNING: Failed to parse config file %s: %v\n", configFilePath, json_err)
-            printf("Using default configuration with environment overrides\n")
-        }
-    } else {
-        printf("Config file not found: %s\n", configFilePath)
-        printf("Using default configuration with environment overrides\n")
-    }
-
-    // Apply environment variable overrides
-    apply_env_overrides(&config)
-
-    // Validate the configuration
-    if validation_err := validate_config(&config); validation_err != "" {
-        printf("ERROR: Configuration validation failed: %v\n", validation_err)
-        os.exit(1)
-    }
-
-    // Store globally and return
-    currentConfig = new(lib.AppConfig)
-    currentConfig^ = config
-
-    return currentConfig
+    return config
 }
 
 // Apply environment variable overrides to configuration
