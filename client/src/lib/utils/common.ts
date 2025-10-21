@@ -15,6 +15,7 @@ export const ALL_ACCOUNTS = "/projects/secure/collections/accounts/clusters"
 export interface AccountEntry {
 	id: string;
 	title: string;
+  email?: string;
 	username: string;
 	password: string;
 	url?: string;
@@ -77,7 +78,6 @@ export function handle_method(reqType: RequestMethod): string {
 }
 
 	export async function handle_request(reqType: RequestMethod, url: string, token: string | undefined): Promise<Response> {
-
 	const response = await fetch(
 		`${BASE_URL}${url}`,
 		{
