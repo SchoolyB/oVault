@@ -1,35 +1,27 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import PasswordCard from '$lib/components/PasswordCard.svelte';
-	import PasswordModal from '$lib/components/PasswordModal.svelte';
+	import AccountCard from '$lib/components/AccountCard.svelte';
+	import AccountModal from '$lib/components/AccountModal.svelte';
+	import type { AccountEntry } from '$lib/utils/common';
+	import { fakeAccounts } from '$lib/utils/dummy_info';
 
-	interface PasswordEntry {
-		id: string;
-		title: string;
-		username: string;
-		password: string;
-		url?: string;
-		notes?: string;
-		createdAt: Date;
-		updatedAt: Date;
-	}
 
 	// Vault state
-	let passwords: PasswordEntry[] = $state([]);
+	let accounts: AccountEntry[] = $state([]);
 	let searchQuery = $state('');
 	let showModal = $state(false);
-	let editingPassword: PasswordEntry | null = $state(null);
+	let editingAccount: AccountEntry | null = $state(null);
 	let showPassword: { [key: string]: boolean } = $state({});
 	let isLoggedIn = $state(false);
 
-	// Computed
-	let filteredPasswords = $derived(
-		passwords.filter(
-			(p) =>
-				p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-				p.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-				(p.url && p.url.toLowerCase().includes(searchQuery.toLowerCase()))
+
+	let filteredAccounts = $derived(
+		accounts.filter(
+			(acct) =>
+			acct.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+			acct.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+			(acct.url && acct.url.toLowerCase().includes(searchQuery.toLowerCase()))
 		)
 	);
 
@@ -45,48 +37,25 @@
 		} else {
 			console.log('Active session found for user:', username);
 			isLoggedIn = true;
-			loadPasswords();
+			get_accounts();
 		}
 	});
 
 	// Load passwords from server
-	async function loadPasswords() {
+	async function get_accounts() {
+		accounts = fakeAccounts
 		try {
-			// TODO: Replace with actual API call
-			// const response = await fetch('http://localhost:8080/api/passwords');
+			// const response = await fetch('http://localhost:8042/api/v1/project/secure/collection/accounts/clusters');
 			// const data = await response.json();
-			// passwords = data;
+			console.log("Data: ", accounts)
 
-			// Mock data for now
-			passwords = [
-				{
-					id: '1',
-					title: 'GitHub',
-					username: 'user@example.com',
-					password: 'SecurePass123!',
-					url: 'https://github.com',
-					notes: 'Main GitHub account',
-					createdAt: new Date(),
-					updatedAt: new Date()
-				},
-				{
-					id: '2',
-					title: 'Gmail',
-					username: 'myemail@gmail.com',
-					password: 'MySecretPass456!',
-					url: 'https://mail.google.com',
-					notes: 'Personal email',
-					createdAt: new Date(),
-					updatedAt: new Date()
-				}
-			];
 		} catch (error) {
 			console.error('Failed to load passwords:', error);
 		}
 	}
 
 	// Logout handler
-	function handleLogout() {
+	function handle_logout() {
 		console.log('Logging out...');
 		// Clear session storage
 		sessionStorage.removeItem('isLoggedIn');
@@ -94,27 +63,26 @@
 
 		// Clear local state
 		isLoggedIn = false;
-		passwords = [];
+		accounts = [];
 		searchQuery = '';
 
-		// Redirect to login
+
 		goto('/login');
 	}
 
-	// Add new password
-	function handleAddNew() {
-		editingPassword = null;
+	function handle_adding_new_account_entry() {
+		editingAccount = null;
 		showModal = true;
 	}
 
 	// Edit password
-	function handleEdit(password: PasswordEntry) {
-		editingPassword = password;
+	function handle_editing_account_entry(account: AccountEntry) {
+		editingAccount = account;
 		showModal = true;
 	}
 
 	// Delete password
-	async function handleDelete(id: string) {
+	async function handle_deleting_account_entry(id: string) {
 		if (!confirm('Are you sure you want to delete this password?')) {
 			return;
 		}
@@ -125,26 +93,26 @@
 			// 	method: 'DELETE'
 			// });
 
-			passwords = passwords.filter((p) => p.id !== id);
+			accounts = accounts.filter((acct) => acct.id !== id);
 		} catch (error) {
 			console.error('Failed to delete password:', error);
 		}
 	}
 
-	// Save password (create or update)
-	async function handleSave(password: Partial<PasswordEntry>) {
+	// Save account state (create or update)
+	async function handle_account_entry_save(account: Partial<AccountEntry>) {
 		try {
-			if (editingPassword) {
+			if (editingAccount) {
 				// Update existing
 				// TODO: Replace with actual API call
-				// await fetch(`http://localhost:8080/api/passwords/${editingPassword.id}`, {
+				// await fetch(`http://localhost:8080/api/passwords/${editingAccount.id}`, {
 				// 	method: 'PUT',
 				// 	headers: { 'Content-Type': 'application/json' },
 				// 	body: JSON.stringify(password)
 				// });
 
-				passwords = passwords.map((p) =>
-					p.id === editingPassword.id ? { ...p, ...password, updatedAt: new Date() } : p
+				accounts = accounts.map((entry) =>
+					entry.id === editingAccount.id ? { ...entry, ...account, updatedAt: new Date() } : entry
 				);
 			} else {
 				// Create new
@@ -156,27 +124,28 @@
 				// });
 				// const newPassword = await response.json();
 
-				const newPassword: PasswordEntry = {
+				const newAccount: AccountEntry = {
 					id: Date.now().toString(),
-					...password,
+					...account,
 					createdAt: new Date(),
 					updatedAt: new Date()
-				} as PasswordEntry;
+				} as AccountEntry;
 
-				passwords = [...passwords, newPassword];
+				accounts = [...accounts, newAccount];
 			}
 
 			showModal = false;
-			editingPassword = null;
+			editingAccount = null;
 		} catch (error) {
 			console.error('Failed to save password:', error);
 		}
 	}
 
-	// Toggle password visibility
-	function togglePasswordVisibility(id: string) {
+
+	function toggle_passoword_show(id: string) {
 		showPassword = { ...showPassword, [id]: !showPassword[id] };
 	}
+
 </script>
 
 <div class="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -195,7 +164,7 @@
 						<h1 class="text-2xl font-bold text-white">oVault Dashboard</h1>
 					</div>
 					<button
-						onclick={handleLogout}
+						onclick={handle_logout}
 						class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition"
 					>
 						Logout
@@ -220,7 +189,7 @@
 					/>
 				</div>
 				<button
-					onclick={handleAddNew}
+					onclick={handle_adding_new_account_entry}
 					class="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition duration-200 shadow-lg shadow-purple-500/30 flex items-center justify-center space-x-2"
 				>
 					<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -233,13 +202,13 @@
 			<!-- Password Count -->
 			<div class="mb-4">
 				<p class="text-slate-400">
-					{filteredPasswords.length} {filteredPasswords.length === 1 ? 'password' : 'passwords'}
+					{filteredAccounts.length} {filteredAccounts.length === 1 ? 'password' : 'passwords'}
 					{searchQuery ? ' found' : ' stored'}
 				</p>
 			</div>
 
 			<!-- Password Grid -->
-			{#if filteredPasswords.length === 0}
+			{#if filteredAccounts.length === 0}
 				<div class="text-center py-16">
 					<div class="inline-flex items-center justify-center w-16 h-16 bg-slate-800 rounded-2xl mb-4">
 						<svg class="w-8 h-8 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -255,13 +224,13 @@
 				</div>
 			{:else}
 				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-					{#each filteredPasswords as password (password.id)}
-						<PasswordCard
-							{password}
-							isVisible={showPassword[password.id] || false}
-							onToggleVisibility={() => togglePasswordVisibility(password.id)}
-							onEdit={() => handleEdit(password)}
-							onDelete={() => handleDelete(password.id)}
+					{#each filteredAccounts as account (account.id)}
+						<AccountCard
+							{account}
+							isVisible={showPassword[account.id] || false}
+							onToggleVisibility={() => toggle_passoword_show(account.id)}
+							onEdit={() => handle_editing_account_entry(account)}
+							onDelete={() => handle_deleting_account_entry(account.id)}
 						/>
 					{/each}
 				</div>
@@ -271,10 +240,10 @@
 
 	<!-- Password Modal -->
 	{#if showModal}
-		<PasswordModal
-			password={editingPassword}
-			onSave={handleSave}
-			onClose={() => { showModal = false; editingPassword = null; }}
+		<AccountModal
+			account={editingAccount}
+			onSave={handle_account_entry_save}
+			onClose={() => { showModal = false; editingAccount = null; }}
 		/>
 	{/if}
 </div>
