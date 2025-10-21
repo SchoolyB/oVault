@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { env } from '$env/dynamic/public';
+	import * as lib from '$lib/utils/common';
 
 	let username = $state('');
 	let password = $state('');
@@ -13,59 +14,21 @@
 
 		try {
 			const token = env.PUBLIC_OSTRICHDB_TOKEN;
-			const baseUrl = 'http://localhost:8042/api/v1';
 
 			// Create project "secure"
-			await fetch(`${baseUrl}/projects/secure`, {
-				method: 'POST',
-				headers: {
-					'Authorization': `Bearer ${token}`,
-					'Content-Type': `application/json`,
-					'Accept': `application/json`
-				}
-			});
+			await lib.handle_request(lib.RequestMethod.POST, lib.CREDENDIAL_PROJECT, token)
 
 			// Create a  collection called "credentials"
-			await fetch(`${baseUrl}/projects/secure/collections/credentials`, {
-				method: 'POST',
-				headers: {
-					'Authorization': `Bearer ${token}`,
-					'Content-Type': `application/json`,
-					'Accept': `application/json`
-				}
-			});
+			await lib.handle_request(lib.RequestMethod.POST, lib.CREDENTIAL_COLLECTION, token)
 
 			// Create cluster for users "creds" to store username and password
-			await fetch(`${baseUrl}/projects/secure/collections/credentials/clusters/creds`, {
-				method: 'POST',
-				headers: {
-					'Authorization': `Bearer ${token}`,
-					'Content-Type': `application/json`,
-					'Accept': `application/json`
-				}
-			});
+			await lib.handle_request(lib.RequestMethod.POST, lib.CREDENTIAL_CLUSTER, token)
 
-			//Store users username
-			await fetch(`${baseUrl}/projects/secure/collections/credentials/clusters/creds/records/username?type=string&value=${encodeURIComponent(username)}`, {
-				method: 'POST',
-				headers: {
-					'Authorization': `Bearer ${token}`,
-					'Content-Type': `application/json`,
-					'Accept': `application/json`
-				}
-			});
+			//Store users username and password
+			await lib.store_registration_creds("username", encodeURIComponent(username), token)
+			await lib.store_registration_creds("password", encodeURIComponent(password), token)
 
-			//Store users password
-			await fetch(`${baseUrl}/projects/secure/collections/credentials/clusters/creds/records/password?type=string&value=${encodeURIComponent(password)}`, {
-				method: 'POST',
-				headers: {
-					'Authorization': `Bearer ${token}`,
-					'Content-Type': `application/json`,
-					'Accept': `application/json`
-				}
-			});
-
-			// Registration successful - redirect to login page
+			// Registration successful redirect to login page
 			window.location.href = '/login';
 
 		} catch (err) {
