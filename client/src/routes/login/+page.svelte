@@ -129,7 +129,7 @@
 						</svg>
 					</div>
 					<h1 class="text-3xl font-bold text-white mb-2">oVault</h1>
-					<p class="text-slate-400">Your secure password manager</p>
+					<p class="text-slate-400">Your secure account manager</p>
 				</div>
 
 				<!-- Login Form -->
