@@ -216,7 +216,7 @@
 
 </script>
 
-<div class="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+<div class="min-h-screen bg-slate-900">
 	<!-- Dashboard / Vault Page -->
 	<div class="min-h-screen">
 		<!-- Header -->
