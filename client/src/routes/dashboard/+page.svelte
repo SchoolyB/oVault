@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { env } from '$env/dynamic/public';
 	import { goto } from '$app/navigation';
+	import * as lib from '$lib/utils/common';
 	import AccountCard from '$lib/components/AccountCard.svelte';
 	import AccountModal from '$lib/components/AccountModal.svelte';
 	import type { AccountEntry } from '$lib/utils/common';
@@ -14,6 +16,8 @@
 	let editingAccount: AccountEntry | null = $state(null);
 	let showPassword: { [key: string]: boolean } = $state({});
 	let isLoggedIn = $state(false);
+
+
 
 
 	let filteredAccounts = $derived(
@@ -43,14 +47,78 @@
 
 	// Load passwords from server
 	async function get_accounts() {
-		accounts = fakeAccounts
 		try {
-			// const response = await fetch('http://localhost:8042/api/v1/project/secure/collection/accounts/clusters');
-			// const data = await response.json();
-			console.log("Data: ", accounts)
+			const token = env.PUBLIC_OSTRICHDB_TOKEN;
+			//Firstly GET all names of Clusters in the Collection as an array
+			// Then for each name in the array, send another request getting actual Record information.
+			// Have to do it this way because I fucked up something when building OstrichDB's request handlers
+			let response = await lib.handle_request(lib.RequestMethod.GET, lib.ALL_ACCOUNTS, token)
+			const clusterData = await response.json();
 
+			const loadedAccounts: AccountEntry[] = [];
+
+			//Loop over each Cluster to get their names
+			for (const cluster of clusterData.clusters) {
+				let nextResponse = await lib.handle_request(lib.RequestMethod.GET, `${lib.ALL_ACCOUNTS}/${cluster.name}`, token)
+				const recordData = await nextResponse.json()
+
+				//For each record in recordData make an AccountEntry
+				const accountEntry: AccountEntry = {
+					id: cluster.id || cluster.name,
+					title: '',
+					username: '',
+					password: '',
+					url: '',
+					notes: '',
+					tags: [],
+					createdAt: new Date(),
+					updatedAt: new Date()
+				};
+
+				// Map records to AccountEntry fields
+				if (recordData.records) { //This shit is dumb. Checking if the 'records' property exists...Should be a .exists() method..but no
+					for (const record of recordData.records) {
+						switch (record.name) {
+							case 'title':
+								accountEntry.title = record.value;
+								break;
+							case 'username':
+								accountEntry.username = record.value;
+								break;
+							case 'password':
+								accountEntry.password = record.value;
+								break;
+							case 'url':
+								accountEntry.url = record.value;
+								break;
+							case 'notes':
+								accountEntry.notes = record.value;
+								break;
+							case 'tags':
+							    //TODO: come back to me
+								try {
+									accountEntry.tags = JSON.parse(record.value);
+								} catch {
+									accountEntry.tags = record.value ? record.value.split(',').map(t => t.trim()) : [];
+								}
+								break;
+							case 'createdAt':
+								accountEntry.createdAt = new Date(record.value);
+								break;
+							case 'updatedAt':
+								accountEntry.updatedAt = new Date(record.value);
+								break;
+						}
+					}
+				}
+
+				loadedAccounts.push(accountEntry);
+			}
+
+			accounts = loadedAccounts;
+			console.log(`Loaded ${accounts.length} accounts from database`);
 		} catch (error) {
-			console.error('Failed to load passwords:', error);
+			console.error('Failed to load accounts:', error);
 		}
 	}
 
