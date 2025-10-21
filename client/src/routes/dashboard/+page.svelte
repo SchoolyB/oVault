@@ -6,7 +6,6 @@
 	import AccountCard from '$lib/components/AccountCard.svelte';
 	import AccountModal from '$lib/components/AccountModal.svelte';
 	import type { AccountEntry } from '$lib/utils/common';
-	import { fakeAccounts } from '$lib/utils/dummy_info';
 
 
 	// Vault state
@@ -25,6 +24,7 @@
 			(acct) =>
 			acct.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
 			acct.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+			(acct.email && acct.email.toLowerCase().includes(searchQuery.toLowerCase())) ||
 			(acct.url && acct.url.toLowerCase().includes(searchQuery.toLowerCase()))
 		)
 	);
@@ -82,17 +82,20 @@
 							case 'title':
 								accountEntry.title = record.value;
 								break;
+							case 'email':
+								accountEntry.email = record.value ? decodeURIComponent(record.value) : '';
+								break;
 							case 'username':
-								accountEntry.username = record.value;
+								accountEntry.username = record.value ? decodeURIComponent(record.value) : '';
 								break;
 							case 'password':
-								accountEntry.password = record.value;
+								accountEntry.password = record.value ? decodeURIComponent(record.value) : '';
 								break;
 							case 'url':
-								accountEntry.url = record.value;
+								accountEntry.url = record.value ? decodeURIComponent(record.value) : '';
 								break;
 							case 'notes':
-								accountEntry.notes = record.value;
+								accountEntry.notes = record.value ? decodeURIComponent(record.value) : '';
 								break;
 							case 'tags':
 							    //TODO: come back to me
@@ -183,15 +186,30 @@
 					entry.id === editingAccount.id ? { ...entry, ...account, updatedAt: new Date() } : entry
 				);
 			} else {
-				// Create new
-				// TODO: Replace with actual API call
-				// const response = await fetch('http://localhost:8080/api/passwords', {
-				// 	method: 'POST',
-				// 	headers: { 'Content-Type': 'application/json' },
-				// 	body: JSON.stringify(password)
-				// });
-				// const newPassword = await response.json();
 
+				const token = env.PUBLIC_OSTRICHDB_TOKEN;
+				//create the accounts cluster
+				await lib.handle_request(lib.RequestMethod.POST, `${lib.ALL_ACCOUNTS}/${account.title}`, token)
+
+				//Now append all info user entered (required fields)
+				await lib.handle_request(lib.RequestMethod.POST, `${lib.ALL_ACCOUNTS}/${account.title}/records/username?type=STRING&value=${encodeURIComponent(account.username!)}`, token)
+				await lib.handle_request(lib.RequestMethod.POST, `${lib.ALL_ACCOUNTS}/${account.title}/records/password?type=STRING&value=${encodeURIComponent(account.password!)}`, token)
+
+				//handle optionals
+				if (account.email) {
+					await lib.handle_request(lib.RequestMethod.POST, `${lib.ALL_ACCOUNTS}/${account.title}/records/email?type=STRING&value=${encodeURIComponent(account.email)}`, token)
+				}
+				if (account.url) {
+					await lib.handle_request(lib.RequestMethod.POST, `${lib.ALL_ACCOUNTS}/${account.title}/records/url?type=STRING&value=${encodeURIComponent(account.url)}`, token)
+				}
+				if (account.notes) {
+					await lib.handle_request(lib.RequestMethod.POST, `${lib.ALL_ACCOUNTS}/${account.title}/records/notes?type=STRING&value=${encodeURIComponent(account.notes)}`, token)
+				}
+				if (account.tags && account.tags.length > 0) {
+					await lib.handle_request(lib.RequestMethod.POST, `${lib.ALL_ACCOUNTS}/${account.title}/records/tags?type=[]STRING&value=[${account.tags}]`, token)
+				}
+
+				//Add the account to the account array state
 				const newAccount: AccountEntry = {
 					id: Date.now().toString(),
 					...account,
