@@ -21,6 +21,9 @@
 			// Create a  collection called "credentials"
 			await lib.handle_request(lib.RequestMethod.POST, lib.CREDENTIAL_COLLECTION, token)
 
+			//Create a collection called "accounts" for actual data storage
+			await lib.handle_request(lib.RequestMethod.POST, lib.ACCOUNTS_COLLECTION, token)
+
 			// Create cluster for users "creds" to store username and password
 			await lib.handle_request(lib.RequestMethod.POST, lib.CREDENTIAL_CLUSTER, token)
 
