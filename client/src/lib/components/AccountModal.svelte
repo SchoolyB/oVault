@@ -6,6 +6,7 @@
 
 	//State for the account creation form
 	let title = $state(account?.title || '');
+	let email = $state(account?.email || '');
 	let username = $state(account?.username || '');
 	let accountPasswordValue = $state(account?.password || '');
 	let url = $state(account?.url || '');
@@ -30,6 +31,7 @@
 
 		onSave({
 			title,
+			email: email || undefined,
 			username,
 			password: accountPasswordValue,
 			url: url || undefined,
@@ -108,6 +110,21 @@
 					bind:value={url}
 					placeholder="https://example.com"
 					class="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-white placeholder-slate-500 transition"
+				/>
+			</div>
+
+			<!-- Email -->
+			<div>
+				<label for="email" class="block text-sm font-medium text-slate-300 mb-2">
+					Email
+				</label>
+				<input
+					id="email"
+					type="email"
+					bind:value={email}
+					placeholder="user@example.com"
+					class="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-white placeholder-slate-500 transition"
+					autocomplete="off"
 				/>
 			</div>
 
@@ -235,13 +252,15 @@
 
 			<!-- Notes -->
 			<div>
-				<label for="notes" class="block text-sm font-medium text-slate-300 mb-2">
-					Notes
+				<label for="notes" class="block text-sm font-medium text-slate-300 mb-2 flex items-center justify-between">
+					<span>Notes</span>
+					<span class="text-xs {notes.length > 32 ? 'text-red-400' : 'text-slate-500'}">{notes.length}/32</span>
 				</label>
 				<textarea
 					id="notes"
 					bind:value={notes}
 					placeholder="Additional notes (optional)"
+					maxlength="32"
 					rows="3"
 					class="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-white placeholder-slate-500 transition resize-none"
 				></textarea>

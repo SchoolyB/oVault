@@ -27,6 +27,16 @@
 		}
 	}
 
+	async function copy_email():Promise<void> {
+		try {
+			if (account.email) {
+				await navigator.clipboard.writeText(account.email);
+			}
+		} catch (error) {
+			console.error('Failed to copy email:', error);
+		}
+	}
+
 	function get_website_icon(url?: string){
 		if (!url){
 		  return null; //if there is no URL return other wise try to find the icon
@@ -113,6 +123,25 @@
 		</div>
 	</div>
 
+	<!-- Accounts email (if present) -->
+	{#if account.email}
+		<div class="mb-3">
+			<label class="text-xs text-slate-400 mb-1 block">Email</label>
+			<div class="flex items-center justify-between bg-slate-900/50 rounded-lg px-3 py-2 group/email">
+				<span class="text-white text-sm truncate flex-1">{account.email}</span>
+				<button
+					onclick={copy_email}
+					class="ml-2 p-1 hover:bg-slate-700 rounded transition opacity-0 group-hover/email:opacity-100"
+					title="Copy email"
+				>
+					<svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+					</svg>
+				</button>
+			</div>
+		</div>
+	{/if}
+
 	<!-- Accounts password -->
 	<div>
 		<label class="text-xs text-slate-400 mb-1 block">Password</label>
@@ -156,7 +185,7 @@
 		</div>
 	</div>
 
-	<!-- Notes (if present) -->
+	<!-- Notes -->
 	{#if account.notes}
 		<div class="mt-3 pt-3 border-t border-slate-700">
 			<p class="text-xs text-slate-400 line-clamp-2">{account.notes}</p>
