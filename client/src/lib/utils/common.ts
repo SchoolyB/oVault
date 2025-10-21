@@ -1,11 +1,14 @@
-//Constant
+//Constants
 export const BASE_URL = 'http://localhost:8042/api/v1';
 export const CREDENDIAL_PROJECT = "/projects/secure"
 export const CREDENTIAL_COLLECTION = "/projects/secure/collections/credentials"
 export const CREDENTIAL_CLUSTER = "/projects/secure/collections/credentials/clusters/creds"
 export const USERNAME_RECORD = "/projects/secure/collections/credentials/clusters/creds/records/username"
-export const PASSWORD_RECORD = "/projects/secure/collections/credentials/clusters/creds/records/passwords"
+export const PASSWORD_RECORD = "/projects/secure/collections/credentials/clusters/creds/records/password"
 export const USERNAME_RECORD_VALUE = "/projects/secure/collections/credentials/clusters/creds/records/username?type=string&value="
+export const ACCOUNTS_COLLECTION = "/projects/secure/collections/accounts"
+export const ALL_ACCOUNTS = "/projects/secure/collections/accounts/clusters"
+
 
 
 //Types
