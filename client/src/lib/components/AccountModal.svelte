@@ -1,31 +1,16 @@
 <script lang="ts">
-	import { generatePassword } from '$lib/utils/passwordGenerator';
+	import { generate_password } from '$lib/utils/password_generator';
+	import type { AccountCreationModalProps } from '$lib/utils/common';
 
-	interface PasswordEntry {
-		id: string;
-		title: string;
-		username: string;
-		password: string;
-		url?: string;
-		notes?: string;
-		createdAt: Date;
-		updatedAt: Date;
-	}
+	let { account, onSave, onClose }: AccountCreationModalProps = $props();
 
-	interface Props {
-		password: PasswordEntry | null;
-		onSave: (password: Partial<PasswordEntry>) => void;
-		onClose: () => void;
-	}
-
-	let { password, onSave, onClose }: Props = $props();
-
-	// Form state
-	let title = $state(password?.title || '');
-	let username = $state(password?.username || '');
-	let passwordValue = $state(password?.password || '');
-	let url = $state(password?.url || '');
-	let notes = $state(password?.notes || '');
+	//State for the account creation form
+	let title = $state(account?.title || '');
+	let username = $state(account?.username || '');
+	let accountPasswordValue = $state(account?.password || '');
+	let url = $state(account?.url || '');
+	let notes = $state(account?.notes || '');
+	let tags = $state(account?.tags || '');
 	let showPassword = $state(false);
 	let showGenerator = $state(false);
 
@@ -36,8 +21,9 @@
 	let includeNumbers = $state(true);
 	let includeSymbols = $state(true);
 
-	function handleSubmit() {
-		if (!title || !username || !passwordValue) {
+	//This handles the actual submission of an new account entry over the server
+	function handle_submit() {
+		if (!title || !username || !accountPasswordValue) {
 			alert('Please fill in all required fields');
 			return;
 		}
@@ -45,35 +31,36 @@
 		onSave({
 			title,
 			username,
-			password: passwordValue,
+			password: accountPasswordValue,
 			url: url || undefined,
 			notes: notes || undefined
 		});
 	}
 
-	function handleGeneratePassword() {
-		const generated = generatePassword({
+	function handle_password_generation() {
+		const generated = generate_password({
 			length: generatorLength,
 			includeUppercase,
 			includeLowercase,
 			includeNumbers,
 			includeSymbols
 		});
-		passwordValue = generated;
+		accountPasswordValue = generated;
 		showGenerator = false;
 	}
 
-	function handleBackdropClick(e: MouseEvent) {
+	function handle_modal_click_out(e: MouseEvent) {
 		if (e.target === e.currentTarget) {
 			onClose();
 		}
 	}
+
 </script>
 
 <!-- Modal Backdrop -->
 <div
 	class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-	onclick={handleBackdropClick}
+	onclick={handle_modal_click_out}
 	role="presentation"
 >
 	<!-- Modal Content -->
@@ -81,7 +68,7 @@
 		<!-- Header -->
 		<div class="sticky top-0 bg-slate-800 border-b border-slate-700 px-6 py-4 flex items-center justify-between">
 			<h2 class="text-2xl font-bold text-white">
-				{password ? 'Edit Password' : 'Add New Password'}
+				{account ? 'Edit Account' : 'Add New Account'}
 			</h2>
 			<button
 				onclick={onClose}
@@ -94,7 +81,7 @@
 		</div>
 
 		<!-- Form -->
-		<form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="p-6 space-y-5">
+		<form onsubmit={(e) => { e.preventDefault(); handle_submit(); }} class="p-6 space-y-5">
 			<!-- Title -->
 			<div>
 				<label for="title" class="block text-sm font-medium text-slate-300 mb-2">
@@ -149,7 +136,7 @@
 					<input
 						id="password"
 						type={showPassword ? 'text' : 'password'}
-						bind:value={passwordValue}
+						bind:value={accountPasswordValue}
 						placeholder="Enter password"
 						class="w-full px-4 py-3 pr-24 bg-slate-900/50 border border-slate-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-white placeholder-slate-500 transition font-mono"
 						required
@@ -237,7 +224,7 @@
 
 						<button
 							type="button"
-							onclick={handleGeneratePassword}
+							onclick={handle_password_generation}
 							class="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition"
 						>
 							Generate Password
@@ -273,7 +260,7 @@
 					type="submit"
 					class="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition shadow-lg shadow-purple-500/30"
 				>
-					{password ? 'Update' : 'Add'} Password
+					{account ? 'Update' : 'Add'} Account
 				</button>
 			</div>
 		</form>

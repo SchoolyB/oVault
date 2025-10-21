@@ -1,30 +1,14 @@
 <script lang="ts">
-	interface PasswordEntry {
-		id: string;
-		title: string;
-		username: string;
-		password: string;
-		url?: string;
-		notes?: string;
-		createdAt: Date;
-		updatedAt: Date;
-	}
 
-	interface Props {
-		password: PasswordEntry;
-		isVisible: boolean;
-		onToggleVisibility: () => void;
-		onEdit: () => void;
-		onDelete: () => void;
-	}
+  import type { AccountCardProps } from "$lib/utils/common"
 
-	let { password, isVisible, onToggleVisibility, onEdit, onDelete }: Props = $props();
-
+	let {account, isVisible, onToggleVisibility, onEdit, onDelete }: AccountCardProps = $props();
 	let copied = $state(false);
 
-	async function copyPassword() {
+	//Copy helper
+	async function copy_password():Promise<void>{
 		try {
-			await navigator.clipboard.writeText(password.password);
+			await navigator.clipboard.writeText(account.password);
 			copied = true;
 			setTimeout(() => {
 				copied = false;
@@ -34,51 +18,56 @@
 		}
 	}
 
-	async function copyUsername() {
+	//Copy helper
+	async function copy_username():Promise<void> {
 		try {
-			await navigator.clipboard.writeText(password.username);
+			await navigator.clipboard.writeText(account.username);
 		} catch (error) {
 			console.error('Failed to copy username:', error);
 		}
 	}
 
-	function getFavicon(url?: string) {
-		if (!url) return null;
+	function get_website_icon(url?: string){
+		if (!url){
+		  return null; //if there is no URL return other wise try to find the icon
+		}
+		const domain = new URL(url).hostname;
 		try {
-			const domain = new URL(url).hostname;
 			return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
-		} catch {
+		} catch(error) { //if not icon return
+		    console.error(`Failed to find ${domain}'s icon`)
 			return null;
 		}
 	}
 </script>
 
+
 <div class="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-xl p-5 hover:border-purple-500/50 transition-all duration-200 group">
-	<!-- Header with Icon and Actions -->
+    <!-- Header with Icon and Actions -->
 	<div class="flex items-start justify-between mb-4">
 		<div class="flex items-center space-x-3">
-			{#if password.url && getFavicon(password.url)}
+			{#if account.url && get_website_icon(account.url)}
 				<img
-					src={getFavicon(password.url)}
+					src={get_website_icon(account.url)}
 					alt=""
 					class="w-10 h-10 rounded-lg"
 					onerror={(e) => e.currentTarget.style.display = 'none'}
 				/>
 			{:else}
 				<div class="w-10 h-10 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
-					<span class="text-white font-bold text-lg">{password.title.charAt(0).toUpperCase()}</span>
+					<span class="text-white font-bold text-lg">{account.title.charAt(0).toUpperCase()}</span>
 				</div>
 			{/if}
 			<div class="flex-1 min-w-0">
-				<h3 class="text-white font-semibold text-lg truncate">{password.title}</h3>
-				{#if password.url}
+				<h3 class="text-white font-semibold text-lg truncate">{account.title}</h3>
+				{#if account.url}
 					<a
-						href={password.url}
+						href={account.url}
 						target="_blank"
 						rel="noopener noreferrer"
 						class="text-sm text-purple-400 hover:text-purple-300 truncate block"
 					>
-						{new URL(password.url).hostname}
+						{new URL(account.url).hostname}
 					</a>
 				{/if}
 			</div>
@@ -107,13 +96,13 @@
 		</div>
 	</div>
 
-	<!-- Username -->
+	<!-- Accounts usernaem-->
 	<div class="mb-3">
 		<label class="text-xs text-slate-400 mb-1 block">Username</label>
 		<div class="flex items-center justify-between bg-slate-900/50 rounded-lg px-3 py-2 group/username">
-			<span class="text-white text-sm truncate flex-1">{password.username}</span>
+			<span class="text-white text-sm truncate flex-1">{account.username}</span>
 			<button
-				onclick={copyUsername}
+				onclick={copy_username}
 				class="ml-2 p-1 hover:bg-slate-700 rounded transition opacity-0 group-hover/username:opacity-100"
 				title="Copy username"
 			>
@@ -124,12 +113,12 @@
 		</div>
 	</div>
 
-	<!-- Password -->
+	<!-- Accounts password -->
 	<div>
 		<label class="text-xs text-slate-400 mb-1 block">Password</label>
 		<div class="flex items-center justify-between bg-slate-900/50 rounded-lg px-3 py-2">
 			<span class="text-white text-sm font-mono flex-1 truncate">
-				{isVisible ? password.password : '••••••••••••'}
+				{isVisible ? account.password : '••••••••••••'}
 			</span>
 			<div class="flex items-center space-x-1 ml-2">
 				<button
@@ -149,7 +138,7 @@
 					{/if}
 				</button>
 				<button
-					onclick={copyPassword}
+					onclick={copy_password}
 					class="p-1 hover:bg-slate-700 rounded transition relative"
 					title="Copy password"
 				>
@@ -168,9 +157,17 @@
 	</div>
 
 	<!-- Notes (if present) -->
-	{#if password.notes}
+	{#if account.notes}
 		<div class="mt-3 pt-3 border-t border-slate-700">
-			<p class="text-xs text-slate-400 line-clamp-2">{password.notes}</p>
+			<p class="text-xs text-slate-400 line-clamp-2">{account.notes}</p>
 		</div>
 	{/if}
+
+
+	{#if account.tags}
+	<div class="mt-3 pt-3 border-t border-slate-700">
+		<p class="text-xs text-slate-400 line-clamp-2">{account.notes}</p>
+	</div>
+	{/if}
+
 </div>
