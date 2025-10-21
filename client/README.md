@@ -1,38 +1,31 @@
-# sv
+# oVault Client
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+A secure account & password manager built with SvelteKit and OstrichDB.
+**For more information see the projects main README.md**
 
-## Creating a project
+## Prerequisites
 
-If you're seeing this, you've probably already done this step. Congrats!
+- **OstrichDB Backend**: The OstrichDB backend must be running before starting the client
+- Yarn (Optional)
 
-```sh
-# create a new project in the current directory
-npx sv create
+## Getting Started
 
-# create a new project in my-app
-npx sv create my-app
+Clone the repository:
+```bash
+git clone https://github.com/SchoolyB/oVault.git
+cd path/to/oVault/client
 ```
 
-## Developing
+Install dependencies:
+```bash
+npm install
+# or
+yarn
+```
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```sh
+Run client:
+```bash
 npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+# or
+yarn run dev
 ```
-
-## Building
-
-To create a production version of your app:
-
-```sh
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
