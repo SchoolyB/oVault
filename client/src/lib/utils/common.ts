@@ -1,9 +1,11 @@
 //Constant
 export const BASE_URL = 'http://localhost:8042/api/v1';
+export const CREDENDIAL_PROJECT = "/projects/secure"
 export const CREDENTIAL_COLLECTION = "/projects/secure/collections/credentials"
 export const CREDENTIAL_CLUSTER = "/projects/secure/collections/credentials/clusters/creds"
 export const USERNAME_RECORD = "/projects/secure/collections/credentials/clusters/creds/records/username"
 export const PASSWORD_RECORD = "/projects/secure/collections/credentials/clusters/creds/records/passwords"
+export const USERNAME_RECORD_VALUE = "/projects/secure/collections/credentials/clusters/creds/records/username?type=string&value="
 
 
 //Types
@@ -86,4 +88,17 @@ export function handle_method(reqType: RequestMethod): string {
 	);
 
 	return response
+}
+
+export async function store_registration_creds(recordName: string, value: string, token: string | undefined) {
+    await fetch(`${BASE_URL}/projects/secure/collections/credentials/clusters/creds/records/${recordName}?type=string&value=${encodeURIComponent(value)}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': `application/json`,
+        'Accept': `application/json`
+      }
+    });
+
+  return true
 }
