@@ -183,6 +183,7 @@ handle_get_request:: proc(method: lib.HttpMethod, path: string, headers: map[str
     }
 
 
+    // Route: /api/v1/projects/{project_name}/collections
     if numberOfSegments == 5 && segments[4] == "collections" {
         userID, authenticated := require_authentication(headers)
         currentUser:= users.make_new_user(userID)
