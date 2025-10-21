@@ -2,13 +2,13 @@
 	import { onMount } from 'svelte';
 	import { env } from '$env/dynamic/public';
 	import { goto } from '$app/navigation';
+	import * as lib from '$lib/utils/common';
 
 	let loginUsername = $state('');
 	let loginPassword = $state('');
 	let loginError = $state('');
 	let loading = $state(false);
 
-	// Check if user is already logged in
 	onMount(() => {
 		const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
 		if (isLoggedIn) {
@@ -21,16 +21,8 @@
 		console.log(env.PUBLIC_OSTRICHDB_TOKEN);
 	}
 
-	// Define the response type from OstrichDB
-	interface OstrichDBRecord {
-		id: string;
-		name: string;
-		type: string;
-		value: string;
-	}
-
 	// Login handler
-	async function handleLogin() {
+	async function handle_login() {
 		loginError = '';
 		loading = true;
 		show_me_key();
@@ -43,33 +35,9 @@
 
 		try {
 			const token = env.PUBLIC_OSTRICHDB_TOKEN;
-			const baseUrl = 'http://localhost:8042/api/v1';
 
-			// Fetch stored username from database
-			const usernameResponse = await fetch(
-				`${baseUrl}/projects/secure/collections/credentials/clusters/creds/records/username`,
-				{
-					method: 'GET',
-					headers: {
-						Authorization: `Bearer ${token}`,
-						'Content-Type': 'application/json',
-						Accept: 'application/json'
-					}
-				}
-			);
-
-			// Fetch stored password from database
-			const passwordResponse = await fetch(
-				`${baseUrl}/projects/secure/collections/credentials/clusters/creds/records/password`,
-				{
-					method: 'GET',
-					headers: {
-						Authorization: `Bearer ${token}`,
-						'Content-Type': 'application/json',
-						Accept: 'application/json'
-					}
-				}
-			);
+			const usernameResponse = await lib.handle_request(lib.RequestMethod.GET, lib.USERNAME_RECORD, token)
+			const passwordResponse = await  lib.handle_request(lib.RequestMethod.GET, lib.PASSWORD_RECORD, token)
 
 			// Check if both requests were successful
 			if (!usernameResponse.ok || !passwordResponse.ok) {
@@ -81,11 +49,11 @@
 			}
 
 			// Parse JSON responses
-			const usernameData: OstrichDBRecord = await usernameResponse.json();
-			const passwordData: OstrichDBRecord = await passwordResponse.json();
+			const usernameData: lib.OstrichDBRecord = await usernameResponse.json();
+			const passwordData: lib.OstrichDBRecord = await passwordResponse.json();
 
-			console.log('Fetched username record:', usernameData);
-			console.log('Fetched password record:', passwordData);
+			console.log('DEBUG: Fetched username record:', usernameData);
+			console.log('DEBUG: Fetched password record:', passwordData);
 
 			// Extract the values from the response
 			const storedUsername = usernameData.value;
@@ -133,7 +101,7 @@
 				</div>
 
 				<!-- Login Form -->
-				<form onsubmit={(e) => { e.preventDefault(); handleLogin(); }}>
+				<form onsubmit={(e) => { e.preventDefault(); handle_login(); }}>
 					<div class="space-y-4">
 						<div>
 							<label for="username" class="block text-sm font-medium text-slate-300 mb-2">
