@@ -17,15 +17,16 @@
 		}
 	});
 
-	export async function show_me_key() {
-		console.log(env.PUBLIC_OSTRICHDB_TOKEN);
-	}
+	//DEBUGGING ONLY:
+	// export async function show_me_key() {
+	// 	console.log(env.PUBLIC_OSTRICHDB_TOKEN);
+	// }
 
 	// Login handler
 	async function handle_login() {
 		loginError = '';
 		loading = true;
-		show_me_key();
+		// show_me_key(); //Uncomment when debugging
 
 		if (!loginUsername || !loginPassword) {
 			loginError = 'Please enter both username and password';
@@ -52,16 +53,12 @@
 			const usernameData: lib.OstrichDBRecord = await usernameResponse.json();
 			const passwordData: lib.OstrichDBRecord = await passwordResponse.json();
 
-			console.log('DEBUG: Fetched username record:', usernameData);
-			console.log('DEBUG: Fetched password record:', passwordData);
-
 			// Extract the values from the response
 			const storedUsername = usernameData.value;
 			const storedPassword = passwordData.value;
 
 			// Verify that entered credentials match stored credentials
 			if (loginUsername === storedUsername && loginPassword === storedPassword) {
-				console.log('Login successful! Redirecting to dashboard...');
 
 				// Store login state in sessionStorage
 				sessionStorage.setItem('isLoggedIn', 'true');
@@ -71,8 +68,8 @@
 				goto('/dashboard');
 			} else {
 				console.log('Credentials do not match');
-				console.log('Entered username matches:', loginUsername === storedUsername);
-				console.log('Entered password matches:', loginPassword === storedPassword);
+				// console.log('Entered username matches:', loginUsername === storedUsername); //Debug
+				// console.log('Entered password matches:', loginPassword === storedPassword); //Debug
 				loginError = 'Invalid username or password';
 			}
 		} catch (error) {

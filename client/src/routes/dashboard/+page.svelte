@@ -36,10 +36,9 @@
 		const username = sessionStorage.getItem('username');
 
 		if (!loggedIn || !username) {
-			console.log('No active session found, redirecting to login...');
 			goto('/login');
 		} else {
-			console.log('Active session found for user:', username);
+			// console.log('Active session found for user:', username); //Debug
 			isLoggedIn = true;
 			get_accounts();
 		}
@@ -119,7 +118,7 @@
 			}
 
 			accounts = loadedAccounts;
-			console.log(`Loaded ${accounts.length} accounts from database`);
+			// console.log(`Loaded ${accounts.length} accounts from database`); //Debug
 		} catch (error) {
 			console.error('Failed to load accounts:', error);
 		}
@@ -127,7 +126,6 @@
 
 	// Logout handler
 	function handle_logout() {
-		console.log('Logging out...');
 		// Clear session storage
 		sessionStorage.removeItem('isLoggedIn');
 		sessionStorage.removeItem('username');
@@ -153,18 +151,16 @@
 	}
 
 	// Delete password
-	async function handle_deleting_account_entry(id: string) {
+	async function handle_deleting_account_entry(account: AccountEntry) {
 		if (!confirm('Are you sure you want to delete this password?')) {
 			return;
 		}
 
 		try {
-			// TODO: Replace with actual API call
-			// await fetch(`http://localhost:8080/api/passwords/${id}`, {
-			// 	method: 'DELETE'
-			// });
+			const token = env.PUBLIC_OSTRICHDB_TOKEN
+			await lib.handle_request(lib.RequestMethod.DELETE, `${lib.ALL_ACCOUNTS}/${account.title}`, token);
 
-			accounts = accounts.filter((acct) => acct.id !== id);
+			accounts = accounts.filter((acct) => acct.id !== account.id);
 		} catch (error) {
 			console.error('Failed to delete password:', error);
 		}
@@ -176,7 +172,16 @@
 			if (editingAccount) { //When updating
 				const token = env.PUBLIC_OSTRICHDB_TOKEN;
 
-				//Whatever change was made update over server
+
+
+				//Whatever changes are made to an account update over server
+				//Note: When the tile of an Account Entry is meant to be changed
+				//           The 'title' Record and the Cluster's name must both change
+				if (editingAccount.title !== account.title) {
+				  await lib.handle_request(lib.RequestMethod.PUT, `${lib.ALL_ACCOUNTS}/${editingAccount.title}?rename=${encodeURIComponent(account.title!)}`, token);
+				  await lib.handle_request(lib.RequestMethod.PUT, `${lib.ALL_ACCOUNTS}/${account.title}/records/title?value=${encodeURIComponent(account.title!)}`, token);
+				}
+
 				if (editingAccount.username !== account.username) {
 					await lib.handle_request(lib.RequestMethod.PUT, `${lib.ALL_ACCOUNTS}/${editingAccount.title}/records/username?value=${encodeURIComponent(account.username!)}`, token);
 				}
@@ -219,6 +224,7 @@
 				await lib.handle_request(lib.RequestMethod.POST, `${lib.ALL_ACCOUNTS}/${account.title}`, token)
 
 				//Now append all info user entered (required fields)
+				await lib.handle_request(lib.RequestMethod.POST, `${lib.ALL_ACCOUNTS}/${account.title}/records/title?type=STRING&value=${encodeURIComponent(account.title!)}`, token)
 				await lib.handle_request(lib.RequestMethod.POST, `${lib.ALL_ACCOUNTS}/${account.title}/records/username?type=STRING&value=${encodeURIComponent(account.username!)}`, token)
 				await lib.handle_request(lib.RequestMethod.POST, `${lib.ALL_ACCOUNTS}/${account.title}/records/password?type=STRING&value=${encodeURIComponent(account.password!)}`, token)
 
@@ -343,7 +349,7 @@
 							isVisible={showPassword[account.id] || false}
 							onToggleVisibility={() => toggle_passoword_show(account.id)}
 							onEdit={() => handle_editing_account_entry(account)}
-							onDelete={() => handle_deleting_account_entry(account.id)}
+							onDelete={() => handle_deleting_account_entry(account)}
 						/>
 					{/each}
 				</div>
