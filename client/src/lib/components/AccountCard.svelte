@@ -64,7 +64,7 @@
 					onerror={(e) => e.currentTarget.style.display = 'none'}
 				/>
 			{:else}
-				<div class="w-10 h-10 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
+				<div class="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
 					<span class="text-white font-bold text-lg">{account.title.charAt(0).toUpperCase()}</span>
 				</div>
 			{/if}

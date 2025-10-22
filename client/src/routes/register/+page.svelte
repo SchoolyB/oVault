@@ -43,7 +43,7 @@
 	}
 </script>
 
-<div class="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+<div class="min-h-screen bg-slate-900">
 	<div class="flex items-center justify-center min-h-screen px-4">
 		<div class="w-full max-w-md">
 			<div class="bg-slate-800/50 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-slate-700">
@@ -112,7 +112,7 @@
 						<button
 							type="submit"
 							disabled={loading}
-							class="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition duration-200 shadow-lg shadow-purple-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
+							class="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
 						>
 							{loading ? 'Creating Account...' : 'Create Account'}
 						</button>

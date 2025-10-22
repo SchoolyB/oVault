@@ -277,7 +277,7 @@
 				</button>
 				<button
 					type="submit"
-					class="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition shadow-lg shadow-purple-500/30"
+					class="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition"
 				>
 					{account ? 'Update' : 'Add'} Account
 				</button>
