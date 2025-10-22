@@ -2,6 +2,14 @@
 
 An open source account and password manager
 
+## Features
+
+- **Simple Authentication** - Straightforward user registration and login system
+- **Powered by OstrichDB** - Leverages OstrichDB's server, engine, and API layer for data storage
+- **Full Account Management** - Create, modify, and delete account entries with ease
+- **100% Local** - Runs entirely on your machine with no internet connection required
+- **Zero Bloat** - No unnecessary dependencies beyond the core tech stack
+
 ## Tech Stack
 - SvelteKit
 - TypeScript
