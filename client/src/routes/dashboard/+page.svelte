@@ -173,20 +173,47 @@
 	// Save account state (create or update)
 	async function handle_account_entry_save(account: Partial<AccountEntry>) {
 		try {
-			if (editingAccount) {
-				// Update existing
-				// TODO: Replace with actual API call
-				// await fetch(`http://localhost:8080/api/passwords/${editingAccount.id}`, {
-				// 	method: 'PUT',
-				// 	headers: { 'Content-Type': 'application/json' },
-				// 	body: JSON.stringify(password)
-				// });
+			if (editingAccount) { //When updating
+				const token = env.PUBLIC_OSTRICHDB_TOKEN;
+
+				//Whatever change was made update over server
+				if (editingAccount.username !== account.username) {
+					await lib.handle_request(lib.RequestMethod.PUT, `${lib.ALL_ACCOUNTS}/${editingAccount.title}/records/username?value=${encodeURIComponent(account.username!)}`, token);
+				}
+
+				if (editingAccount.password !== account.password) {
+					await lib.handle_request(lib.RequestMethod.PUT, `${lib.ALL_ACCOUNTS}/${editingAccount.title}/records/password?value=${encodeURIComponent(account.password!)}`, token);
+				}
+
+				if (editingAccount.email !== account.email) {
+					if (account.email) {
+						await lib.handle_request(lib.RequestMethod.PUT, `${lib.ALL_ACCOUNTS}/${editingAccount.title}/records/email?value=${encodeURIComponent(account.email)}`, token);
+					}
+				}
+
+				if (editingAccount.url !== account.url) {
+					if (account.url) {
+						await lib.handle_request(lib.RequestMethod.PUT, `${lib.ALL_ACCOUNTS}/${editingAccount.title}/records/url?value=${encodeURIComponent(account.url)}`, token);
+					}
+				}
+
+				if (editingAccount.notes !== account.notes) {
+					if (account.notes) {
+						await lib.handle_request(lib.RequestMethod.PUT, `${lib.ALL_ACCOUNTS}/${editingAccount.title}/records/notes?value=${encodeURIComponent(account.notes)}`, token);
+					}
+				}
+
+				if (JSON.stringify(editingAccount.tags) !== JSON.stringify(account.tags)) {
+					if (account.tags && account.tags.length > 0) {
+						await lib.handle_request(lib.RequestMethod.PUT, `${lib.ALL_ACCOUNTS}/${editingAccount.title}/records/tags?value=[${account.tags}]`, token);
+					}
+				}
+
 
 				accounts = accounts.map((entry) =>
 					entry.id === editingAccount.id ? { ...entry, ...account, updatedAt: new Date() } : entry
 				);
-			} else {
-
+			} else {//Making new
 				const token = env.PUBLIC_OSTRICHDB_TOKEN;
 				//create the accounts cluster
 				await lib.handle_request(lib.RequestMethod.POST, `${lib.ALL_ACCOUNTS}/${account.title}`, token)
